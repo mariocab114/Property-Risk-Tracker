@@ -45,3 +45,14 @@ def delete_property(property_id):
     cursor.execute("DELETE FROM properties WHERE id = ?", (property_id,))
     conn.commit()
     conn.close()
+
+def update_property(property_id, name, location, value, risk_category, risk_score):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE properties
+        SET name = ?, location = ?, value = ?, risk_category = ?, risk_score = ?
+        WHERE id = ?
+    """, (name, location, value, risk_category, risk_score, property_id))
+    conn.commit()
+    conn.close()

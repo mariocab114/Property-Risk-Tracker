@@ -110,3 +110,28 @@ def update_property(property_id, name, location, value, risk_category, risk_scor
         raise
     finally:
         conn.close()
+
+def get_risk_categories():
+    conn = create_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT name FROM risk_categories ORDER BY name")
+        return [row.name for row in cursor.fetchall()]
+    finally:
+        conn.close()
+
+def get_exposure_ranking(risk_category=None):
+    conn = create_connection()
+    try:
+        cursor = conn.cursor()
+        if risk_category is None:
+            cursor.execute("EXEC dbo.usp_RankPropertyExposure")
+        else:
+            cursor.execute("EXEC dbo.usp_RankPropertyExposure @RiskCategory = ?", risk_category)
+        return [
+            (row.exposure_rank, row.name, row.location, row.risk_category,
+             float(row.value), row.risk_score, float(row.exposure))
+            for row in cursor.fetchall()
+        ]
+    finally:
+        conn.close()
